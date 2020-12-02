@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 import androidx.annotation.Nullable;
@@ -36,7 +37,9 @@ public class ListHistory extends AppCompatActivity {
     GoogleMap mapAPI;
     SupportMapFragment mapFragment;
     Boolean test;
-
+    ListAdapter list;
+    Cursor x;
+     ArrayList<ObjectParkir> theList;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,22 +48,30 @@ public class ListHistory extends AppCompatActivity {
 
         mListView = (ListView) findViewById(R.id.listView);
         mDatabaseHelper = new DbManager(this);
-        final ArrayList<ObjectParkir> theList = new ArrayList<>();
-        ListAdapter list = new Adapter(this, R.layout.history_item, theList);
+         theList = new ArrayList<>();
+         list = new Adapter(this, R.layout.history_item, theList);
 
-        Cursor x = mDatabaseHelper.selectFromMaps();
+         fetchData();
 
-        while (x.moveToNext()) {
-            theList.add(new ObjectParkir(x.getInt(0), x.getString(1), x.getBlob(3),x.getString(2)));
 
-            mListView.setAdapter(list);
-
-        }
         test = getIntent().getExtras().getBoolean("Malam");
 
         if(test){
             getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }
+
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+               mDatabaseHelper.hapus(theList.get(position).getId());
+
+                Toast.makeText(getApplicationContext(),"Berhasil dihapus",Toast.LENGTH_LONG).show();
+
+
+             fetchData();
+                return true;
+            }
+        });
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -74,10 +85,23 @@ public class ListHistory extends AppCompatActivity {
         });
     }
 
+    public void fetchData(){
+        theList = new ArrayList<>();
+        list = new Adapter(this, R.layout.history_item, theList);
+        x = mDatabaseHelper.selectFromMaps();
+
+        while (x.moveToNext()) {
+            theList.add(new ObjectParkir(x.getInt(0), x.getString(1), x.getBlob(3),x.getString(2)));
+
+            mListView.setAdapter(list);
+
+        }
+    }
 
 
 
-//        SwipeMenuCreator creator = new SwipeMenuCreator() {
+
+    //        SwipeMenuCreator creator = new SwipeMenuCreator() {
 
 //            @Override
 //            public void create(SwipeMenu menu) {

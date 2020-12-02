@@ -73,6 +73,19 @@ public class DbManager extends SQLiteOpenHelper {
             return ambil;
 
     }
+
+    public void hapus(int id){
+        String sql="DELETE FROM tbl_maps WHERE id =?";
+        SQLiteStatement statement = db.compileStatement(sql);
+
+        statement.clearBindings();
+    String idx = String.valueOf(id);
+
+
+        statement.bindString(1,idx);
+        statement.executeInsert();
+
+    }
 }
 
 
